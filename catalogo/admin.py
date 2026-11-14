@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Editorial, Comic
+from .models import Editorial, Comic, Reserva
 
 admin.site.site_header = "Página de Administración de Cómics"
 admin.site.site_title = "Página Cómics"
@@ -17,3 +17,9 @@ class ComicAdmin(admin.ModelAdmin):
     @admin.display(description = 'Precio', ordering = 'precio')
     def precio_formateado(self, obj):
         return f"${obj.precio:,}".replace(',', '.')
+
+@admin.register(Reserva)
+class ReservaAdmin(admin.ModelAdmin):
+    list_display = ('codigo', 'comic', 'fecha_reserva', 'nombre_cliente', 'correo', 'rut',)
+    search_fields = ('codigo', 'nombre_cliente', 'correo',)
+    list_filter = ('fecha_reserva',)
