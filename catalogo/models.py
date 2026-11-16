@@ -53,4 +53,4 @@ class Reserva(models.Model):
         ordering = ['fecha_reserva']
 
     def __str__(self):
-        return self.correo
+        return f"{self.nombre_cliente} - {self.comic.titulo} ({str(self.codigo)[:8]})"

@@ -1,3 +1,8 @@
 from django.shortcuts import render
+from .models import Comic
 
-# Create your views here.
+def inicio(request):
+    comics = Comic.objects.filter(disponible=True).select_related('editorial')
+    return render(request, 'catalogo/inicio.html', {
+        'comics': comics,
+    })

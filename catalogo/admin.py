@@ -10,16 +10,16 @@ class EditorialAdmin(admin.ModelAdmin):
 
 @admin.register(Comic)
 class ComicAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'editorial__nombre', 'stock', 'disponible', 'precio_formateado',)
-    search_fields = ('titulo', 'autor', 'editorial__nombre',)
-    list_filter = ('editorial', 'disponible', 'tapa_dura',)
+    list_display = ('titulo', 'editorial', 'numero_tomo', 'stock', 'disponible', 'precio_formateado')
+    search_fields = ('titulo', 'autor', 'editorial__nombre')
+    list_filter = ('editorial', 'disponible', 'tapa_dura')
 
-    @admin.display(description = 'Precio', ordering = 'precio')
+    @admin.display(description='Precio', ordering='precio')
     def precio_formateado(self, obj):
         return f"${obj.precio:,}".replace(',', '.')
 
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
-    list_display = ('codigo', 'comic', 'fecha_reserva', 'nombre_cliente', 'correo', 'rut',)
-    search_fields = ('codigo', 'nombre_cliente', 'correo',)
-    list_filter = ('fecha_reserva',)
+    list_display = ('codigo', 'comic', 'nombre_cliente', 'rut', 'cantidad_ejemplares', 'fecha_reserva')
+    search_fields = ('codigo', 'nombre_cliente', 'rut', 'correo')
+    list_filter = ('comic', 'fecha_reserva')
