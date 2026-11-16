@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Página no encontrada (404) - Tienda de Cómics{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 fw-bold text-danger">404</h1>
+    <h2 class="h4 mb-3">Cómic no encontrado</h2>
+    <p class="text-muted mb-4">
+        El cómic que buscas no existe o no se encuentra disponible actualmente en nuestro catálogo.
+    </p>
+    <a href="{% url 'catalogo:inicio' %}" class="btn btn-dark">Volver al catálogo</a>
+</div>
+{% endblock %}

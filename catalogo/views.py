@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Comic, Editorial
 
 
@@ -22,4 +22,15 @@ def inicio(request):
         'editoriales': editoriales,
         'q': q,
         'editorial_seleccionada': editorial_seleccionada,
+    })
+
+
+def detalle_comic(request, comic_id):
+    comic = get_object_or_404(
+        Comic.objects.select_related('editorial'),
+        pk=comic_id,
+        disponible=True,
+    )
+    return render(request, 'catalogo/detalle.html', {
+        'comic': comic,
     })

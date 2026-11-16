@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load filtros_clp %}
+
+{% block title %}{{ comic.titulo }} - Tienda de Cómics{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'catalogo:inicio' %}" class="btn btn-outline-secondary btn-sm">&larr; Volver al catálogo</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="row g-0">
+        <div class="col-md-4 bg-light d-flex align-items-center justify-content-center p-3">
+            {% if comic.portada %}
+            <img src="{{ comic.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ comic.titulo }}" style="max-height: 460px; object-fit: contain;">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-secondary fs-6">{{ comic.editorial.nombre }}</span>
+                    {% if comic.stock == 0 %}
+                    <span class="badge bg-danger fs-6">Agotado</span>
+                    {% else %}
+                    <span class="badge bg-success fs-6">Disponible ({{ comic.stock }} en stock)</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="h2 card-title mt-2">{{ comic.titulo }}</h1>
+                <p class="fs-3 fw-bold text-primary mb-3">{{ comic.precio|clp }}</p>
+
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item px-0"><strong>Número de tomo:</strong> #{{ comic.numero_tomo }}</li>
+                    <li class="list-group-item px-0"><strong>Autor / Guionista:</strong> {{ comic.autor }}</li>
+                    <li class="list-group-item px-0">
+                        <strong>Encuadernación:</strong>
+                        {% if comic.tapa_dura %}Tapa dura{% else %}Tapa blanda{% endif %}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong>Stock disponible:</strong>
+                        {% if comic.stock > 0 %}{{ comic.stock }} ejemplar(es){% else %}<span class="text-danger fw-semibold">Agotado</span>{% endif %}
+                    </li>
+                </ul>
+
+                {% if comic.sinopsis %}
+                <div class="mb-4">
+                    <h2 class="h6 fw-bold text-uppercase text-muted">Sinopsis</h2>
+                    <p class="mb-0">{{ comic.sinopsis }}</p>
+                </div>
+                {% endif %}
+
+                {% if comic.stock == 0 %}
+                <div class="alert alert-danger mb-0">
+                    Este cómic se encuentra <strong>Agotado</strong> y no admite reservas en este momento.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
