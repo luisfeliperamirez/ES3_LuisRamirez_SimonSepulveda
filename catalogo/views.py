@@ -1,4 +1,7 @@
+from django.db import transaction
 from django.shortcuts import render, get_object_or_404
+
+from .forms import ReservaForm
 from .models import Comic, Editorial
 
 
@@ -33,4 +36,42 @@ def detalle_comic(request, comic_id):
     )
     return render(request, 'catalogo/detalle.html', {
         'comic': comic,
+    })
+
+
+def comprar(request, comic_id):
+    comic = get_object_or_404(
+        Comic.objects.select_related('editorial'),
+        pk=comic_id,
+        disponible=True,
+    )
+
+    if request.method == 'POST':
+        with transaction.atomic():
+            comic = get_object_or_404(
+                Comic.objects.select_for_update().select_related('editorial'),
+                pk=comic_id,
+                disponible=True,
+            )
+            if comic.stock > 0:
+                form = ReservaForm(request.POST, stock=comic.stock)
+                if form.is_valid():
+                    reserva = form.save(commit=False)
+                    reserva.comic = comic
+                    reserva.save()
+
+                    comic.stock -= reserva.cantidad_ejemplares
+                    comic.save(update_fields=['stock'])
+                    return render(request, 'comprar.html', {
+                        'comic': comic,
+                        'reserva': reserva,
+                    })
+            else:
+                form = None
+    else:
+        form = ReservaForm(stock=comic.stock) if comic.stock > 0 else None
+
+    return render(request, 'comprar.html', {
+        'comic': comic,
+        'form': form,
     })

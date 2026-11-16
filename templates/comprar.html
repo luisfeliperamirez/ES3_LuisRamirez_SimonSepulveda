@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load filtros_clp %}
+
+{% block title %}Comprar {{ comic.titulo }} - Tienda de Cómics{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'catalogo:detalle_comic' comic.id %}" class="btn btn-outline-secondary btn-sm">&larr; Volver al detalle</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        {% if reserva %}
+        <div class="alert alert-success mb-0">
+            <h1 class="h4 alert-heading">Reserva registrada</h1>
+            <p class="mb-1">{{ reserva.cantidad_ejemplares }} ejemplar(es) de <strong>{{ comic.titulo }}</strong>.</p>
+            <p class="mb-0">Código de reserva: <strong>{{ reserva.codigo }}</strong></p>
+        </div>
+        {% else %}
+        <h1 class="h2 mb-1">Comprar cómic</h1>
+        <p class="text-muted mb-4">{{ comic.titulo }} — {{ comic.precio|clp }}</p>
+
+        {% if form %}
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger small">{{ field.errors|join:", " }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Confirmar reserva</button>
+        </form>
+        {% else %}
+        <div class="alert alert-danger mb-0">Este cómic no tiene ejemplares disponibles para reservar.</div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
