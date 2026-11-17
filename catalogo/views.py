@@ -1,8 +1,8 @@
 from django.db import transaction
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import ReservaForm
-from .models import Comic, Editorial
+from .models import Comic, Editorial, Reserva
 
 
 def inicio(request):
@@ -62,10 +62,7 @@ def comprar(request, comic_id):
 
                     comic.stock -= reserva.cantidad_ejemplares
                     comic.save(update_fields=['stock'])
-                    return render(request, 'comprar.html', {
-                        'comic': comic,
-                        'reserva': reserva,
-                    })
+                    return redirect('catalogo:comprobante', codigo=reserva.codigo)
             else:
                 form = None
     else:
@@ -74,4 +71,16 @@ def comprar(request, comic_id):
     return render(request, 'comprar.html', {
         'comic': comic,
         'form': form,
+    })
+
+
+def comprobante(request, codigo):
+    reserva = get_object_or_404(
+        Reserva.objects.select_related('comic', 'comic__editorial'),
+        codigo=codigo,
+    )
+    total = reserva.cantidad_ejemplares * reserva.comic.precio
+    return render(request, 'catalogo/comprobante.html', {
+        'reserva': reserva,
+        'total': total,
     })

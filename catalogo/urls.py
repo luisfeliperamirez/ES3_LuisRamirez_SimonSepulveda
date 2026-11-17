@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.inicio, name='inicio'),
     path('comic/<int:comic_id>/', views.detalle_comic, name='detalle_comic'),
     path('comic/<int:comic_id>/comprar/', views.comprar, name='comprar'),
+    path('reserva/<uuid:codigo>/comprobante/', views.comprobante, name='comprobante'),
 ]

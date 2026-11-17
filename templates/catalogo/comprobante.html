@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load filtros_clp %}
+
+{% block title %}Comprobante de Reserva - Tienda de Cómics{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-success">
+            <div class="card-header bg-success text-white">
+                <h1 class="h4 mb-0">Comprobante de Reserva</h1>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted mb-4">
+                    Tu reserva ha sido registrada exitosamente. Presenta este código al retirar en tienda.
+                </p>
+
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Código de reserva:</strong>
+                        <span class="font-monospace fw-bold">{{ reserva.codigo }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Cómic:</strong>
+                        <span>{{ reserva.comic.titulo }} (Tomo #{{ reserva.comic.numero_tomo }})</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Nombre de quien reserva:</strong>
+                        <span>{{ reserva.nombre_cliente }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>RUT:</strong>
+                        <span>{{ reserva.rut }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Cantidad de ejemplares:</strong>
+                        <span>{{ reserva.cantidad_ejemplares }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Fecha y hora de reserva:</strong>
+                        <span>{{ reserva.fecha_reserva|date:"d/m/Y H:i" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between bg-light">
+                        <strong class="fs-5">Total a pagar:</strong>
+                        <span class="fs-5 fw-bold text-primary">{{ total|clp }}</span>
+                    </li>
+                </ul>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'catalogo:inicio' %}" class="btn btn-dark">Volver al catálogo</a>
+                    <a href="{% url 'catalogo:detalle_comic' reserva.comic.id %}" class="btn btn-outline-secondary">Ver cómic</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

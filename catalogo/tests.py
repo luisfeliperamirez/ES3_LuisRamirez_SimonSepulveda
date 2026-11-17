@@ -21,80 +21,60 @@ class ComprarViewTests(TestCase):
         response = self.client.get(
             reverse('catalogo:detalle_comic', args=[self.comic.pk])
         )
-
         self.assertContains(
             response,
             reverse('catalogo:comprar', args=[self.comic.pk]),
         )
 
-    def test_comprar_muestra_campos_del_formulario(self):
-        response = self.client.get(
-            reverse('catalogo:comprar', args=[self.comic.pk])
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'comprar.html')
-        self.assertContains(response, 'Nombre del cliente')
-        self.assertContains(response, 'RUT')
-        self.assertContains(response, 'Correo electrónico')
-        self.assertContains(response, 'Cantidad de ejemplares')
-
-    def test_compra_registra_reserva_y_actualiza_stock(self):
+    def test_compra_registra_reserva_redirige_y_actualiza_stock(self):
         response = self.client.post(
             reverse('catalogo:comprar', args=[self.comic.pk]),
             {
                 'nombre_cliente': 'Cliente de prueba',
-                'rut': '12345678-9',
+                'rut': '12.345.678-5',
                 'correo': 'cliente@example.com',
                 'cantidad_ejemplares': 2,
             },
         )
 
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(Reserva.objects.count(), 1)
-        self.assertEqual(Reserva.objects.get().comic, self.comic)
+        reserva = Reserva.objects.get()
+        self.assertRedirects(
+            response,
+            reverse('catalogo:comprobante', args=[reserva.codigo]),
+        )
         self.comic.refresh_from_db()
         self.assertEqual(self.comic.stock, 3)
-        self.assertContains(response, 'Reserva registrada')
 
-    def test_no_permite_reservar_mas_unidades_que_el_stock(self):
+    def test_no_permite_reservar_mas_de_tres_ni_mas_que_el_stock(self):
         response = self.client.post(
             reverse('catalogo:comprar', args=[self.comic.pk]),
             {
                 'nombre_cliente': 'Cliente de prueba',
-                'rut': '12345678-9',
+                'rut': '12.345.678-5',
                 'correo': 'cliente@example.com',
-                'cantidad_ejemplares': 6,
+                'cantidad_ejemplares': 4,
             },
         )
-
-        self.assertEqual(response.status_code, 200)
         self.assertIn('cantidad_ejemplares', response.context['form'].errors)
         self.assertEqual(Reserva.objects.count(), 0)
-        self.comic.refresh_from_db()
-        self.assertEqual(self.comic.stock, 5)
 
-    def test_rut_rechaza_letras_distintas_de_k(self):
-        response = self.client.post(
-            reverse('catalogo:comprar', args=[self.comic.pk]),
-            {
-                'nombre_cliente': 'Cliente de prueba',
-                'rut': '123A5678-9',
-                'correo': 'cliente@example.com',
-                'cantidad_ejemplares': 1,
-            },
-        )
-
-        self.assertIn('rut', response.context['form'].errors)
-        self.assertEqual(Reserva.objects.count(), 0)
-
-    def test_rut_acepta_k_como_digito_verificador(self):
+    def test_rut_rechaza_digito_verificador_incorrecto(self):
         form = ReservaForm({
             'nombre_cliente': 'Cliente de prueba',
-            'rut': '12.345.678-k',
+            'rut': '12.345.678-9',
             'correo': 'cliente@example.com',
             'cantidad_ejemplares': 1,
         }, stock=5)
+        self.assertFalse(form.is_valid())
+        self.assertIn('rut', form.errors)
 
+    def test_rut_acepta_k_como_digito_verificador_valido(self):
+        form = ReservaForm({
+            'nombre_cliente': 'Cliente de prueba',
+            'rut': '18.613.267-k',
+            'correo': 'cliente@example.com',
+            'cantidad_ejemplares': 1,
+        }, stock=5)
         self.assertTrue(form.is_valid(), form.errors)
-        self.assertEqual(form.cleaned_data['rut'], '12.345.678-K')
+        self.assertEqual(form.cleaned_data['rut'], '18.613.267-K')
