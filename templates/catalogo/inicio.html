@@ -5,8 +5,12 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h2 mb-0">Catálogo de Cómics</h1>
-    <span class="text-muted">{{ comics|length }} título(s) encontrado(s)</span>
+    <h1 class="h2 mb-0"> <img src="media/other/1.png"> Catálogo de Cómics</h1>
+    {% if comics %}
+     <span class="text-muted">  <img src="media/other/4.png"> {{ comics|length }} título(s) encontrado(s)</span>
+    {% else %}
+     <span class="text-muted">  <img src="media/other/5.png"> 0 títulos encontrados</span>
+    {% endif %}
 </div>
 
 <form method="get" class="card card-body shadow-sm mb-4">
@@ -51,7 +55,7 @@
                     {% endif %}
                 </div>
                 <h2 class="h5 card-title mt-1">{{ comic.titulo }}</h2>
-                <p class="text-muted small mb-2">Tomo #{{ comic.numero_tomo }}</p>
+                <p class="text-muted small mb-2"> <img src="media/other/3.png"> Tomo #{{ comic.numero_tomo }}</p>
                 <p class="fs-5 fw-bold text-primary mt-auto mb-3">{{ comic.precio|clp }}</p>
                 <a href="{% url 'catalogo:detalle_comic' comic.id %}" class="btn btn-outline-dark w-100">Ver detalle</a>
             </div>

@@ -1,7 +1,7 @@
 from django.urls import reverse
-from django.urls import reverse
 from django.test import TestCase
 
+from .forms import ReservaForm
 from .models import Comic, Editorial, Reserva
 
 
@@ -73,3 +73,28 @@ class ComprarViewTests(TestCase):
         self.assertEqual(Reserva.objects.count(), 0)
         self.comic.refresh_from_db()
         self.assertEqual(self.comic.stock, 5)
+
+    def test_rut_rechaza_letras_distintas_de_k(self):
+        response = self.client.post(
+            reverse('catalogo:comprar', args=[self.comic.pk]),
+            {
+                'nombre_cliente': 'Cliente de prueba',
+                'rut': '123A5678-9',
+                'correo': 'cliente@example.com',
+                'cantidad_ejemplares': 1,
+            },
+        )
+
+        self.assertIn('rut', response.context['form'].errors)
+        self.assertEqual(Reserva.objects.count(), 0)
+
+    def test_rut_acepta_k_como_digito_verificador(self):
+        form = ReservaForm({
+            'nombre_cliente': 'Cliente de prueba',
+            'rut': '12.345.678-k',
+            'correo': 'cliente@example.com',
+            'cantidad_ejemplares': 1,
+        }, stock=5)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['rut'], '12.345.678-K')
